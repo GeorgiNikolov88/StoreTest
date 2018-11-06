@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Store.Context;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -14,12 +16,12 @@ namespace Store
         {
             //Записване на наличните продукти в текстови файл
             using (StreamWriter writer = new StreamWriter("files/Products.txt"))
-            { 
+            {
                 foreach (var product in productList)
                 {
-                    writer.WriteLine("{0},{1},{2},{3},{4},{5}",Regex.Replace(product.Brand, @"\s+", "_"), product.Price, product.InStock, product.Type, product.MaxStock,product.Overcharge);
+                    writer.WriteLine("{0},{1},{2},{3},{4},{5}", Regex.Replace(product.Brand, @"\s+", "_"), product.Price, product.InStock, product.Type, product.MaxStock, product.Overcharge);
                 }
-                
+
             }
             //Записване на информацията за наличните пари на магазина в текстови файл 
             using (StreamWriter writer = new StreamWriter("files/ShopCash.txt"))
@@ -44,13 +46,13 @@ namespace Store
             string line;
             using (StreamReader reader = new StreamReader("../../../files/Products.txt"))
             {
-                while ((line = reader.ReadLine())!= null)
+                while ((line = reader.ReadLine()) != null)
                 {
-                    string[] words = line.Split(",");                    
+                    string[] words = line.Split(",");
                     if (words[0] != "")
                     {
                         productList.Add(new Product(words[0], Convert.ToDecimal(words[1]), Convert.ToInt32(words[2]), Convert.ToInt32(words[3]), Convert.ToInt32(words[4]), Convert.ToDecimal(words[5])));
-                    }                    
+                    }
                 }
             }
             //Внасяне на информация за наличните пари на магазина от текстови файл 
@@ -58,18 +60,29 @@ namespace Store
             {
                 Startup.shopCash = Convert.ToDecimal(reader.ReadLine());
             }
-            //Внасяне на видовете продукти от текстови файл
-            using (StreamReader reader = new StreamReader("../../../files/ProductTypes.txt"))
+            using (var context = new StoreContext())
             {
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        Product.foodType.Add(line);
-                    }
-                }
+                var a = context.StoreInfo.Select(cash => cash.StoreCash);
+                Console.WriteLine(a);
+                Console.ReadLine();
             }
-                return productList;
+            //Внасяне на видовете продукти от текстови файл
+            //using (StreamReader reader = new StreamReader("../../../files/ProductTypes.txt"))
+            //{
+            //    while ((line = reader.ReadLine()) != null)
+            //    {
+            //        if (!string.IsNullOrEmpty(line))
+            //        {
+            //            Product.foodType.Add(line);
+            //        }
+            //    }
+            //}
+            //Внасяне на видовете продукти от БД
+            using (var context = new StoreContext())
+            {
+                Product.foodType = context.ProductTypes.Select(item => item.PropertyName).ToList();
+            }
+            return productList;
         }
     }
 }

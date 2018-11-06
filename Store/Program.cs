@@ -10,10 +10,11 @@ namespace Store
         public static decimal shopCash = 0m;
         public static List<string> languageInterface =  Interfaces.SelectInterface();
         static void Main(string[] args)
-        {
+        {            
             ExportAndInport creator = new ExportAndInport();
             CRUDProduct newProduct = new CRUDProduct();
             List<Product> list = creator.ImportStoreDataFromFiles();
+            Console.WriteLine(shopCash);
             SellAndRestock transaction = new SellAndRestock();
             Console.Clear();
             ConsoleKey cont = ConsoleKey.Enter;
@@ -71,7 +72,8 @@ namespace Store
                         {
                             case 1:
                                 Console.Clear();
-                                list.Add(newProduct.CreateNewProduct(list, languageInterface));
+                                newProduct.CreateNewProduct(list, languageInterface);
+                                //list.Add();
                                 break;
                             case 2:
                                 Console.Clear();

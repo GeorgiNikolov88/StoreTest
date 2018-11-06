@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Store.Context;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,13 +11,13 @@ namespace Store
         //bool correct;
         //Метод за създаване на нов обект
         //static List<string> languageInterface = Startup.languageInterface;
-        public Product CreateNewProduct(List<Product> list, List<string> langageInterface)
+        public void CreateNewProduct(List<Product> list, List<string> langageInterface)
         {
             Console.Write(langageInterface[12]);
             string brand = CheckIfItemExists(Console.ReadLine(), list);
             if (brand == string.Empty)
             {
-                return product;
+                return;
             }
             Console.Write(langageInterface[13]);
             decimal price =InputChecker.CheckIfDecimal();
@@ -28,8 +29,12 @@ namespace Store
             int maxStock = InputChecker.CheckIfInt();
             Console.Write(langageInterface[17]);
             decimal overcharge = InputChecker.CheckIfDecimal();
-            product = new Product(brand, price, inStock, type, maxStock, overcharge);            
-            return product;
+            product = new Product(brand, price, inStock, type, maxStock, overcharge);
+
+            using (var context = new StoreContext())
+            {
+                context.Products.Add(product);
+            }
         }
 
         //Метод за редактиране на даден обект от списъка с продукти в магазина

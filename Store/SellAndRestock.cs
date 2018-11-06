@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Store.Context;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -52,6 +53,10 @@ namespace Store
 
         internal static string FindItem(List<Product> list)
         {
+            using (var context = new StoreContext())
+            {
+                //context.ProductTypes.
+            }
             string itemBrand;
             List<int> types = new List<int>();
             List<string> brands = new List<string>();

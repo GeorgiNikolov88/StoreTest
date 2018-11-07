@@ -43,6 +43,17 @@ namespace Store
             return input;
         }
 
+        public static int CheckIfInt(int minValue,int maxValue)
+        {
+            bool correct = int.TryParse(Console.ReadLine(), out int input);
+            while (correct == false || input > maxValue || input < minValue)
+            {
+                Console.Write(Startup.languageInterface[2]);
+                correct = int.TryParse(Console.ReadLine(), out input);
+            }
+            return input;
+        }
+
         public static decimal CheckIfDecimal()
         {
             bool correct = decimal.TryParse(Console.ReadLine(), out decimal input);

@@ -56,15 +56,17 @@ namespace Store
                 }
             }
             //Внасяне на информация за наличните пари на магазина от текстови файл 
-            using (StreamReader reader = new StreamReader("../../../files/ShopCash.txt"))
-            {
-                Startup.shopCash = Convert.ToDecimal(reader.ReadLine());
-            }
+            //using (StreamReader reader = new StreamReader("../../../files/ShopCash.txt"))
+            //{
+            //    Startup.shopCash = Convert.ToDecimal(reader.ReadLine());
+            //}
             using (var context = new StoreContext())
             {
-                var a = context.StoreInfo.Select(cash => cash.StoreCash);
-                Console.WriteLine(a);
-                Console.ReadLine();
+                var a = context.StoreMoney.Select(cash => cash.StoreCashSupply).ToList();
+                foreach (var item in a)
+                {
+                    Startup.shopCash = item;
+                }
             }
             //Внасяне на видовете продукти от текстови файл
             //using (StreamReader reader = new StreamReader("../../../files/ProductTypes.txt"))

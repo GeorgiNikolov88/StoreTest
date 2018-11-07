@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Store.Models
 {
-    class StoreInfo
+    class StoreLog
     {
         //public int StoreId { get; set; }
         [Key]
-        public decimal StoreCash { get; set; }
-        public string StoreLog { get; set; }
+        public int Id { get; set; }
+        public string SalesLog { get; set; }
     }
 }

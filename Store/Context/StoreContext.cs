@@ -9,7 +9,8 @@ namespace Store.Context
     class StoreContext : DbContext
     {
         public DbSet<Product> Products { get; set; }
-        public DbSet<StoreInfo> StoreInfo { get; set; }
+        public DbSet<StoreLog> StoreLog { get; set; }
+        public DbSet<StoreMoney> StoreMoney { get; set; }
         public DbSet<ProductTypes> ProductTypes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

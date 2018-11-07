@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Store
@@ -55,7 +56,48 @@ namespace Store
         {
             using (var context = new StoreContext())
             {
-                //context.ProductTypes.
+                foreach (var item in Product.foodType)
+                {
+                    Console.WriteLine(item);
+                }
+                Console.Write(Startup.languageInterface[46]);
+                int inpit = InputChecker.CheckIfInt(0, Product.foodType.Count);
+                List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();
+                string option = "edit";
+                switch (option)
+                {
+                    case "edit":
+                        if (selectedProductsByType.Count > 0)
+                        {
+                            Console.WriteLine(Startup.languageInterface[47]);
+                            for (int j = 0; j < selectedProductsByType.Count; j++)
+                            {
+                                Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
+                            }
+                        }
+                        int selectItem = InputChecker.CheckIfInt(0,selectedProductsByType.Count);
+                        int itemId = selectedProductsByType[selectItem].ProductID;
+                        var selectedProduct = context.Products.Select(id => id.ProductID == itemId);
+                        break;
+                    case "sell":
+                        break;
+                    default:
+                        break;
+                }
+
+                selectedProductsByType.RemoveAll(checkIfItemIsInStock => checkIfItemIsInStock.InStock <= 0);
+                if (selectedProductsByType.Count > 0)
+                {
+                    Console.WriteLine(Startup.languageInterface[47]);
+                    for (int j = 0; j < selectedProductsByType.Count; j++)
+                    {
+                        Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
+                    }
+                }
+                else
+                {
+                    //Console.WriteLine(Startup.languageInterface[39], 1, 2);
+                }
             }
             string itemBrand;
             List<int> types = new List<int>();
@@ -110,16 +152,7 @@ namespace Store
 
         internal static int FindItemIndex(List<Product> list)
         {
-            string itemToFind = FindItem(list);
-            //int index = 0;
-            //for (int i = 0; i < list.Count; i++)
-            //{
-            //    if (itemToFind == list[i].Brand)
-            //    {
-            //        index = i;
-            //    }
-            //}
-            
+            string itemToFind = FindItem(list);            
             int index = list.FindIndex(a => a.Brand == itemToFind);
             return index;
         }

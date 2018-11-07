@@ -1,6 +1,7 @@
 ﻿using Store.Context;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Store
@@ -13,9 +14,43 @@ namespace Store
         {            
             ExportAndInport creator = new ExportAndInport();
             CRUDProduct newProduct = new CRUDProduct();
-            List<Product> list = creator.ImportStoreDataFromFiles();
-            Console.WriteLine(shopCash);
+            List<Product> list = creator.ImportStoreDataFromFiles();           
             SellAndRestock transaction = new SellAndRestock();
+
+            using (var context = new StoreContext())
+            {
+
+                foreach (var item in Product.foodType)
+                {
+                    Console.WriteLine(item);
+                }
+                Console.Write(Startup.languageInterface[46]);
+                int inpit = InputChecker.CheckIfInt(0,Product.foodType.Count);
+                List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();
+                selectedProductsByType.RemoveAll(x => x.InStock <= 0);
+                if (selectedProductsByType.Count > 0)
+                {
+                    Console.WriteLine(Startup.languageInterface[47]);
+                    for (int j = 0; j < selectedProductsByType.Count; j++)
+                    {
+                        Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Out of stock");
+                }
+
+
+            }
+
+
+
+
+
+
+
+            Console.ReadLine();
             Console.Clear();
             ConsoleKey cont = ConsoleKey.Enter;
             //using (var context = new StoreContext())

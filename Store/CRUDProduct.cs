@@ -34,17 +34,19 @@ namespace Store
             using (var context = new StoreContext())
             {
                 context.Products.Add(product);
+                context.SaveChanges();
             }
+            
         }
 
         //Метод за редактиране на даден обект от списъка с продукти в магазина
         public Product EditProduct(List<Product> list)
         {
-            string itemToEdit = SellAndRestock.FindItem(list);
-            while (itemToEdit == "Out of stock!")
+            int itemToEdit = SellAndRestock.FindItem("edit");
+            while (itemToEdit == -1)
             {
                 Console.WriteLine(Startup.languageInterface[36]);
-                itemToEdit = SellAndRestock.FindItem(list);                
+                itemToEdit = SellAndRestock.FindItem("Edit");                
             }
             Console.WriteLine(Startup.languageInterface[26], itemToEdit);
             ConsoleKey check = InputChecker.CheckIfEnter();
@@ -52,21 +54,22 @@ namespace Store
             {
                 foreach (var item in list)
                 {
-                    if (item.Brand == itemToEdit)
-                    {
-                        Console.WriteLine(Startup.languageInterface[12]);
-                        item.Brand = EditItemProperty(item.Brand);                          
-                        Console.WriteLine(Startup.languageInterface[29]);
-                        item.Price = EditItemProperty(item.Price);
-                        Console.WriteLine(Startup.languageInterface[30]);
-                        item.InStock = EditItemProperty(item.InStock);
-                        Console.WriteLine(Startup.languageInterface[31]);                        
-                        item.Type = InputChecker.CheckTypeInput(item.Type); 
-                        Console.WriteLine(Startup.languageInterface[32]);
-                        item.MaxStock = EditItemProperty(item.MaxStock);
-                        Console.WriteLine(Startup.languageInterface[33]);
-                        item.Overcharge = EditItemProperty(item.Overcharge);
-                    }
+                    //    if (item.Brand == itemToEdit)
+                    //    {
+                    //        Console.WriteLine(Startup.languageInterface[12]);
+                    //        item.Brand = EditItemProperty(item.Brand);                          
+                    //        Console.WriteLine(Startup.languageInterface[29]);
+                    //        item.Price = EditItemProperty(item.Price);
+                    //        Console.WriteLine(Startup.languageInterface[30]);
+                    //        item.InStock = EditItemProperty(item.InStock);
+                    //        Console.WriteLine(Startup.languageInterface[31]);                        
+                    //        item.Type = InputChecker.CheckTypeInput(item.Type); 
+                    //        Console.WriteLine(Startup.languageInterface[32]);
+                    //        item.MaxStock = EditItemProperty(item.MaxStock);
+                    //        Console.WriteLine(Startup.languageInterface[33]);
+                    //        item.Overcharge = EditItemProperty(item.Overcharge);
+                    //    }
+                    //}
                 }
             }
             else
@@ -77,24 +80,24 @@ namespace Store
         }
 
         //Метод за изтриване на обект от списъка с продукти
-        public List<Product> DeleteItem(List<Product> list)
+        public void DeleteItem()
         {
             Console.WriteLine(Startup.languageInterface[22]);
             ConsoleKey check = InputChecker.CheckIfEnter();
             if (check == ConsoleKey.Enter)
             {                
-                int index = SellAndRestock.FindItemIndex(list);
-                Console.WriteLine(Startup.languageInterface[23], list[index].Brand);
+                int index = SellAndRestock.FindItem("edit");
+                //Console.WriteLine(Startup.languageInterface[23], list[index].Brand);
                 check = InputChecker.CheckIfEnter();
                 if (check == ConsoleKey.Enter)
                 {
-                    Console.WriteLine(Startup.languageInterface[24], list[index].Brand);
-                    list.RemoveAt(index);
+                    //Console.WriteLine(Startup.languageInterface[24], list[index].Brand);
+                  //  list.RemoveAt(index);
                 }
                 else
                 {
-                    Console.WriteLine(Startup.languageInterface[25], list[index].Brand);
-                    return list;
+                    //Console.WriteLine(Startup.languageInterface[25], list[index].Brand);
+                    //return list;
                 }
 
             }
@@ -102,7 +105,7 @@ namespace Store
             {
                 Console.WriteLine(Startup.languageInterface[25]);
             }
-            return list;
+            //return list;
         }        
 
         //Проверка за съществуването да даден хранителен тип от foodType списъка в Product.cs

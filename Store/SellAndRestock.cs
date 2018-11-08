@@ -1,4 +1,5 @@
 ﻿using Store.Context;
+using Store.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,50 +11,54 @@ namespace Store
     class SellAndRestock
     {
         static decimal shoppingCardCost;
-        public List<Product> Sell(List<Product> list)
-        {            
-            List<string> shoppingCart = ShoppingCart(list);
-            foreach (var brandName in shoppingCart)
+        public void Sell(List<Product> list)
+        {
+            List<int> shoppingCart = ShoppingCart();
+            using (var context = new StoreContext())
             {
-                if (brandName != "Out of stock!")
-                {                    
-                    Console.Write(Startup.languageInterface[38], brandName);
-                    //int.TryParse(Console.ReadLine(), out int ammount);
-                    int ammount = InputChecker.CheckIfInt();
-                    foreach (var item in list)
-                    {
-                        if (item.Brand == brandName)
-                        {
-                            while (item.InStock < ammount)
-                            {
-                                Console.WriteLine(Startup.languageInterface[39], brandName, item.InStock);
-                                Console.Write(Startup.languageInterface[40]);
-                                //int.TryParse(Console.ReadLine(), out ammount);
-                                ammount = InputChecker.CheckIfInt(item.InStock);
-                            }
-                            item.InStock -= ammount;
-                            shoppingCardCost = shoppingCardCost + (item.Price * ammount) + ((item.Price*item.Overcharge) * ammount);
-                            Startup.shopCash = Startup.shopCash + (item.Price * ammount) + ((item.Price * item.Overcharge) * ammount);
-                            Console.WriteLine(Startup.languageInterface[41], Product.GetListItem(item.Type), brandName, item.InStock);
-                            using (StreamWriter sw = new StreamWriter("files/log.txt", true))
-                            {
-                                sw.WriteLine(Startup.languageInterface[42], DateTime.Now, Product.GetListItem(item.Type), brandName, ammount, (item.Price * ammount) + ((item.Price * item.Overcharge) * ammount));
-                            }
-                            Console.WriteLine(Startup.languageInterface[62], shoppingCardCost);                            
-                        }
-                    }
+                foreach (var item in shoppingCart)
+                {
+                    var singleItem = context.Products.Single(id => id.ProductID == item);                    
+                    Console.WriteLine(Startup.languageInterface[38], singleItem.Brand, singleItem.InStock);
+                    int ammount = InputChecker.CheckIfInt(0,singleItem.InStock);
+                    singleItem.InStock -= ammount;
+                    var sum = context.StoreMoney.First();
+                    
+                    Console.WriteLine(sum);
+                   
+                    shoppingCardCost = shoppingCardCost + (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount);
+                   
+                    Console.WriteLine(shoppingCardCost);
+                    //sum.StoreCashSupply = Startup.shopCash + (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount);
+                    //Console.WriteLine(Startup.languageInterface[41], Product.GetListItem(singleItem.Type), singleItem.Brand, singleItem.InStock);
+
+                    
+                    var Newlog = (DateTime.Now,Product.GetListItem(singleItem.Type),singleItem.Brand, ammount, (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount)).ToString();
+                    Console.WriteLine(Newlog);
+                    Console.ReadLine();
+                    var log = new StoreLog()
+                    {      
+                        SalesLog = Newlog
+                    };
+                    context.StoreLog.Add(log);                    
+                    // context.Add<StoreLog>(log);
+                    //////context.StoreLog.Add("aaaa");
+                    ////using (StreamWriter sw = new StreamWriter("files/log.txt", true))
+                    ////{
+                    ////    sw.WriteLine(Startup.languageInterface[42], DateTime.Now, Product.GetListItem(singleItem.Type), singleItem.Brand, ammount, (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount));
+                    ////}
+                    ////Console.WriteLine(Startup.languageInterface[62], shoppingCardCost);                  
+                    context.SaveChanges();
                     Console.WriteLine(Startup.languageInterface[43]);
                 }
-                else
-                {
-                    Console.WriteLine(Startup.languageInterface[44]);
-                }
             }
-            return list;
+            
+            //return list;
         }
 
-        internal static string FindItem(List<Product> list)
+        internal static int FindItem(string option)
         {
+            int itemId;
             using (var context = new StoreContext())
             {
                 foreach (var item in Product.foodType)
@@ -62,30 +67,7 @@ namespace Store
                 }
                 Console.Write(Startup.languageInterface[46]);
                 int inpit = InputChecker.CheckIfInt(0, Product.foodType.Count);
-                List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();
-                string option = "edit";
-                switch (option)
-                {
-                    case "edit":
-                        if (selectedProductsByType.Count > 0)
-                        {
-                            Console.WriteLine(Startup.languageInterface[47]);
-                            for (int j = 0; j < selectedProductsByType.Count; j++)
-                            {
-                                Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
-                            }
-                        }
-                        int selectItem = InputChecker.CheckIfInt(0,selectedProductsByType.Count);
-                        int itemId = selectedProductsByType[selectItem].ProductID;
-                        var selectedProduct = context.Products.Select(id => id.ProductID == itemId);
-                        break;
-                    case "sell":
-                        break;
-                    default:
-                        break;
-                }
-
-                selectedProductsByType.RemoveAll(checkIfItemIsInStock => checkIfItemIsInStock.InStock <= 0);
+                List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();                
                 if (selectedProductsByType.Count > 0)
                 {
                     Console.WriteLine(Startup.languageInterface[47]);
@@ -94,81 +76,38 @@ namespace Store
                         Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
                     }
                 }
-                else
+                int selectItem = InputChecker.CheckIfInt(0, selectedProductsByType.Count);
+                itemId = selectedProductsByType[selectItem].ProductID;
+                var selectedProduct = context.Products.Single(Id => Id.ProductID == itemId);
+                switch (option)
                 {
-                    //Console.WriteLine(Startup.languageInterface[39], 1, 2);
+                    case "edit":
+                        return itemId;                        
+                    case "sell":
+                        if (selectedProduct.InStock > 0)
+                        {
+                            return itemId;
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
-            string itemBrand;
-            List<int> types = new List<int>();
-            List<string> brands = new List<string>();
-            int i = 0;
-            foreach (var item in list)
-            {
-                if (!types.Contains(item.Type))
-                {
-                    types.Add(item.Type);
-                }
-            }
-            Console.WriteLine(Startup.languageInterface[45]);
-            foreach (var type in types)
-            {
-                Console.WriteLine("{0} - {1}", type, Product.GetListItem(type));
-            }
-            Console.Write(Startup.languageInterface[46]);
-            int input = InputChecker.CheckIfInt();
-            foreach (var item in list)
-            {
-                if (item.Type == input)
-                {
-                    if (item.InStock != 0)
-                    {
-                        brands.Add(item.Brand);
-                    }
-                }
-            }
-            if (brands.Count > 0)
-            {
-                foreach (var brand in brands)
-                {
-                    Console.WriteLine("{0}:{1}", i, brand);
-                    i++;
-                }
-                Console.Write(Startup.languageInterface[47]);
-                input = InputChecker.CheckIfInt(brands.Count -1);
-                while (input >= brands.Count || input < 0 )
-                {
-                    Console.WriteLine(Startup.languageInterface[48]);
-                    int.TryParse(Console.ReadLine(), out input);
-                }
-                itemBrand = brands[input];
-            }
-            else
-            {
-                itemBrand = "Out of stock!";
-            }
-            return itemBrand;
+            return itemId;
         }
 
-        internal static int FindItemIndex(List<Product> list)
+        private List<int> ShoppingCart()
         {
-            string itemToFind = FindItem(list);            
-            int index = list.FindIndex(a => a.Brand == itemToFind);
-            return index;
-        }
-
-        private List<string> ShoppingCart(List<Product> list)
-        {
-            string itemBrand = string.Empty;
+            int itemId;
             ConsoleKey answer = ConsoleKey.Enter;
-            List < string > shoppingCart = new List<string>();
+            List <int> shoppingCart = new List<int>();
             answer = ConsoleKey.Enter;
             while (answer != ConsoleKey.Escape)
             {
-                itemBrand = FindItem(list);
-                if (itemBrand != null && itemBrand != "Out of stock!")
+                itemId = FindItem("sell");
+                if (itemId != -1)
                 {
-                    shoppingCart.Add(itemBrand);
+                    shoppingCart.Add(itemId);
                     Console.WriteLine(Startup.languageInterface[49]);
                     Console.WriteLine(Startup.languageInterface[0]);                    
                     answer = InputChecker.CheckIfEnter();
@@ -260,7 +199,7 @@ namespace Store
             switch (input)
             {
                 case 1:
-                    int index = FindItemIndex(list);                    
+                    int index = FindItem("edit");                    
                     Console.WriteLine(Startup.languageInterface[66], Product.foodType[list[index].Type], list[index].Brand);
                     Console.WriteLine(Startup.languageInterface[67], list[index].InStock, list[index].MaxStock);
                     Console.WriteLine(Startup.languageInterface[68], list[index].Price, list[index].Overcharge);

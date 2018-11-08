@@ -1,4 +1,5 @@
-﻿using Store.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using Store.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,41 +17,6 @@ namespace Store
             CRUDProduct newProduct = new CRUDProduct();
             List<Product> list = creator.ImportStoreDataFromFiles();           
             SellAndRestock transaction = new SellAndRestock();
-
-            using (var context = new StoreContext())
-            {
-
-                foreach (var item in Product.foodType)
-                {
-                    Console.WriteLine(item);
-                }
-                Console.Write(Startup.languageInterface[46]);
-                int inpit = InputChecker.CheckIfInt(0,Product.foodType.Count);
-                List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();
-                selectedProductsByType.RemoveAll(x => x.InStock <= 0);
-                if (selectedProductsByType.Count > 0)
-                {
-                    Console.WriteLine(Startup.languageInterface[47]);
-                    for (int j = 0; j < selectedProductsByType.Count; j++)
-                    {
-                        Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Out of stock");
-                }
-
-
-            }
-
-
-
-
-
-
-
-            Console.ReadLine();
             Console.Clear();
             ConsoleKey cont = ConsoleKey.Enter;
             //using (var context = new StoreContext())
@@ -112,7 +78,7 @@ namespace Store
                                 break;
                             case 2:
                                 Console.Clear();
-                                newProduct.DeleteItem(list);
+                                newProduct.DeleteItem();
 
                                 break;
                             case 3:
@@ -155,3 +121,50 @@ namespace Store
         }
     }
 }
+
+
+//            using (var context = new StoreContext())
+//            {
+//                foreach (var item in Product.foodType)
+//                {
+//                    Console.WriteLine(item);
+//                }
+//                Console.Write(Startup.languageInterface[46]);
+//                int inpit = InputChecker.CheckIfInt(0, Product.foodType.Count);
+//List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();
+//string option = "sell";
+//                if (selectedProductsByType.Count > 0)
+//                {
+//                    Console.WriteLine(Startup.languageInterface[47]);
+//                    for (int j = 0; j<selectedProductsByType.Count; j++)
+//                    {
+//                        Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
+//                    }
+//                }
+//                int selectItem = InputChecker.CheckIfInt(0, selectedProductsByType.Count);
+//int itemId = selectedProductsByType[selectItem].ProductID;
+//var selectedProduct = context.Products.Single(Id => Id.ProductID == itemId);
+               
+//                switch (option)
+//                {
+//                    case "edit":
+//                        Console.WriteLine(selectedProduct.Brand);
+//                        break;
+//                    case "sell":
+//                        if (selectedProduct.InStock > 0)
+//                        {
+//                            Console.WriteLine(selectedProduct.InStock);
+//                        }
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
+
+
+
+
+
+
+
+//                Console.ReadLine();

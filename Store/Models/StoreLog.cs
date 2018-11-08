@@ -5,9 +5,8 @@ using System.Text;
 
 namespace Store.Models
 {
-    class StoreLog
-    {
-        //public int StoreId { get; set; }
+    public class StoreLog
+    {        
         [Key]
         public int Id { get; set; }
         public string SalesLog { get; set; }

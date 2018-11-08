@@ -45,12 +45,13 @@ namespace Store
 
         public static int CheckIfInt(int minValue,int maxValue)
         {
-            bool correct = int.TryParse(Console.ReadLine(), out int input);
+            bool correct = int.TryParse(Console.ReadLine(), out int input);            
             while (correct == false || input > maxValue || input < minValue)
             {
                 Console.Write(Startup.languageInterface[2]);
                 correct = int.TryParse(Console.ReadLine(), out input);
             }
+            Console.WriteLine(input);
             return input;
         }
 

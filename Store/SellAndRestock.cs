@@ -10,50 +10,38 @@ namespace Store
 {
     class SellAndRestock
     {
-        static decimal shoppingCardCost;
-        public void Sell(List<Product> list)
+        //static decimal shoppingCardCost;
+        public void Sell()
         {
             List<int> shoppingCart = ShoppingCart();
             using (var context = new StoreContext())
             {
+                var insertMoney = context.StoreMoney.First();
+                //insertMoney.StoreCashSupply = 0;
                 foreach (var item in shoppingCart)
                 {
-                    var singleItem = context.Products.Single(id => id.ProductID == item);                    
+                    var singleItem = context.Products.Single(id => id.ProductID == item);
                     Console.WriteLine(Startup.languageInterface[38], singleItem.Brand, singleItem.InStock);
-                    int ammount = InputChecker.CheckIfInt(0,singleItem.InStock);
+                    int ammount = InputChecker.CheckIfInt(0, singleItem.InStock);
                     singleItem.InStock -= ammount;
-                    var sum = context.StoreMoney.First();
-                    
-                    Console.WriteLine(sum);
-                   
-                    shoppingCardCost = shoppingCardCost + (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount);
-                   
-                    Console.WriteLine(shoppingCardCost);
-                    //sum.StoreCashSupply = Startup.shopCash + (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount);
-                    //Console.WriteLine(Startup.languageInterface[41], Product.GetListItem(singleItem.Type), singleItem.Brand, singleItem.InStock);
-
-                    
-                    var Newlog = (DateTime.Now,Product.GetListItem(singleItem.Type),singleItem.Brand, ammount, (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount)).ToString();
-                    Console.WriteLine(Newlog);
-                    Console.ReadLine();
+                    //var insertMoney = context.StoreMoney.First();
+                    insertMoney.StoreCashSupply += (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount);
+                    //shoppingCardCost += shoppingCardCost + (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount);
+                    var Newlog = ("Date: ", DateTime.Now,
+                        "Product Type: ", Product.GetListItem(singleItem.Type),
+                        "Brand: ", singleItem.Brand,
+                        "Ammount: ", ammount,
+                        "Price: ", (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount)).ToString();
                     var log = new StoreLog()
-                    {      
+                    {
                         SalesLog = Newlog
                     };
-                    context.StoreLog.Add(log);                    
-                    // context.Add<StoreLog>(log);
-                    //////context.StoreLog.Add("aaaa");
-                    ////using (StreamWriter sw = new StreamWriter("files/log.txt", true))
-                    ////{
-                    ////    sw.WriteLine(Startup.languageInterface[42], DateTime.Now, Product.GetListItem(singleItem.Type), singleItem.Brand, ammount, (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount));
-                    ////}
-                    ////Console.WriteLine(Startup.languageInterface[62], shoppingCardCost);                  
-                    context.SaveChanges();
-                    Console.WriteLine(Startup.languageInterface[43]);
+                    context.StoreLog.Add(log);
+                    //Console.WriteLine(Startup.languageInterface[62], shoppingCardCost);                    
                 }
+                context.SaveChanges();
+                Console.WriteLine(Startup.languageInterface[43]);
             }
-            
-            //return list;
         }
 
         internal static int FindItem(string option)
@@ -61,13 +49,13 @@ namespace Store
             int itemId;
             using (var context = new StoreContext())
             {
-                foreach (var item in Product.foodType)
+                foreach (var item in context.ProductTypes.ToList())
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine("{0}){1}",item.PropertyId,item.PropertyName);
                 }
                 Console.Write(Startup.languageInterface[46]);
                 int inpit = InputChecker.CheckIfInt(0, Product.foodType.Count);
-                List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();                
+                List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();
                 if (selectedProductsByType.Count > 0)
                 {
                     Console.WriteLine(Startup.languageInterface[47]);
@@ -82,7 +70,7 @@ namespace Store
                 switch (option)
                 {
                     case "edit":
-                        return itemId;                        
+                        return itemId;
                     case "sell":
                         if (selectedProduct.InStock > 0)
                         {
@@ -100,7 +88,7 @@ namespace Store
         {
             int itemId;
             ConsoleKey answer = ConsoleKey.Enter;
-            List <int> shoppingCart = new List<int>();
+            List<int> shoppingCart = new List<int>();
             answer = ConsoleKey.Enter;
             while (answer != ConsoleKey.Escape)
             {
@@ -109,7 +97,7 @@ namespace Store
                 {
                     shoppingCart.Add(itemId);
                     Console.WriteLine(Startup.languageInterface[49]);
-                    Console.WriteLine(Startup.languageInterface[0]);                    
+                    Console.WriteLine(Startup.languageInterface[0]);
                     answer = InputChecker.CheckIfEnter();
                 }
                 else
@@ -120,106 +108,114 @@ namespace Store
             return shoppingCart;
         }
 
-        public List<Product> Restock(List<Product> list)
+        public void Restock()
         {
             Console.WriteLine(Startup.languageInterface[51]);
             Console.WriteLine(Startup.languageInterface[52]);
             Console.WriteLine(Startup.languageInterface[78]);
-            //int.TryParse(Console.ReadLine(), out int input);
-            int input = InputChecker.CheckIfInt(3);
-            switch (input)
+            int input = InputChecker.CheckIfInt(0, 3);
+            using (var context = new StoreContext())
             {
-                case 1:
-                    foreach (var product in list)
-                    {
-                        Console.Clear();
-                        Console.WriteLine(Startup.languageInterface[53]);
-                        Console.WriteLine(Startup.languageInterface[54], Product.GetListItem(product.Type), product.Brand, product.InStock, product.MaxStock);
-                        Console.WriteLine(Startup.languageInterface[55]);
-                        ConsoleKey answer = Console.ReadKey(true).Key;
-                        if (answer == ConsoleKey.Enter)
+                var moneySupply = context.StoreMoney.First();
+                //var moneySupply.StoreCashSupply;
+                var productList = context.Products.ToList();
+                switch (input)
+                {
+                    case 1:
+                        foreach (var product in productList)
                         {
-                            Console.WriteLine(Startup.languageInterface[56]);
-                            int order = InputChecker.CheckIfInt();
-                            while (order + product.InStock > product.MaxStock || order < 0 || order * product.Price > Startup.shopCash)
+                            Console.Clear();
+                            Console.WriteLine(Startup.languageInterface[53]);
+                            Console.WriteLine(Startup.languageInterface[54], Product.GetListItem(product.Type), product.Brand, product.InStock, product.MaxStock);
+                            Console.WriteLine(Startup.languageInterface[55]);
+                            ConsoleKey answer = Console.ReadKey(true).Key;
+                            if (answer == ConsoleKey.Enter)
                             {
-                                if (order + product.InStock > product.MaxStock)
+                                Console.WriteLine(Startup.languageInterface[56]);
+                                int order = InputChecker.CheckIfInt();
+                                while (order + product.InStock > product.MaxStock || order < 0 || order * product.Price > moneySupply.StoreCashSupply)
                                 {
-                                    Console.WriteLine(Startup.languageInterface[57], product.MaxStock);
+                                    if (order + product.InStock > product.MaxStock)
+                                    {
+                                        Console.WriteLine(Startup.languageInterface[57], product.MaxStock);
+                                    }
+                                    else if (order < 0)
+                                    {
+                                        Console.WriteLine(Startup.languageInterface[58]);
+                                    }
+                                    else if (order * product.Price > moneySupply.StoreCashSupply)
+                                    {
+                                        Console.WriteLine(Startup.languageInterface[59]);
+                                    }
+                                    Console.Write(Startup.languageInterface[60]);
+                                    order = InputChecker.CheckIfInt();
                                 }
-                                else if (order<0)
-                                {
-                                    Console.WriteLine(Startup.languageInterface[58]);
-                                }
-                                else if (order * product.Price > Startup.shopCash)
-                                {
-                                    Console.WriteLine(Startup.languageInterface[59]);
-                                }
-                                Console.Write( Startup.languageInterface[60]);
-                                order = InputChecker.CheckIfInt();
+                                moneySupply.StoreCashSupply -= order * product.Price;
+                                product.InStock = order + product.InStock;
                             }
-                            Startup.shopCash = Startup.shopCash - order * product.Price;
-                            product.InStock = order + product.InStock;
                         }
-                    }
-                    break;
-                case 2:
-                    foreach (var product in list)
-                    {
-                        int ammount = product.MaxStock - product.InStock;
-                        if (Startup.shopCash > ammount * product.Price)
+                        context.SaveChanges();
+                        break;
+                    case 2:                        
+                        foreach (var product in productList)
                         {
-                            Startup.shopCash = Startup.shopCash - ammount * product.Price;
-                            product.InStock = product.MaxStock;
+                            int ammount = product.MaxStock - product.InStock;
+                            if (moneySupply.StoreCashSupply  > ammount * product.Price)
+                            {
+                                moneySupply.StoreCashSupply -= ammount * product.Price;
+                                product.InStock = product.MaxStock;
+                            }
+                            else
+                            {
+                                Console.WriteLine(Startup.languageInterface[59]);
+                            }
                         }
-                        else
-                        {
-                            Console.WriteLine(Startup.languageInterface[59]);
-                        }    
-                    }
-                    break;
-                default: 
-                    
-                    break;
+                        context.SaveChanges();
+                        break;
+                    default:
+
+                        break;
+                }
+                
             }
             Console.Clear();
-            Console.WriteLine(Startup.languageInterface[61]);
-            return list;
+            Console.WriteLine(Startup.languageInterface[61]);            
         }
 
-        public void DisplayProducts(List<Product> list)
+        public void DisplayProducts()
         {
             Console.WriteLine(Startup.languageInterface[64]);
             Console.WriteLine(Startup.languageInterface[65]);
-            int input = InputChecker.CheckIfInt();
-            while (input>2 || input<0)
+            int input = InputChecker.CheckIfInt(0, 2);
+            using (var context = new StoreContext())
             {
-                input = InputChecker.CheckIfInt();
-            }            
-            switch (input)
-            {
-                case 1:
-                    int index = FindItem("edit");                    
-                    Console.WriteLine(Startup.languageInterface[66], Product.foodType[list[index].Type], list[index].Brand);
-                    Console.WriteLine(Startup.languageInterface[67], list[index].InStock, list[index].MaxStock);
-                    Console.WriteLine(Startup.languageInterface[68], list[index].Price, list[index].Overcharge);
-                    Console.WriteLine();
-                    break;
-                case 2:
-                    foreach (var item in list)
-                    {
-                        Console.WriteLine(Startup.languageInterface[66] , Product.foodType[item.Type], item.Brand);
-                        Console.WriteLine(Startup.languageInterface[67] , item.InStock, item.MaxStock);
-                        Console.WriteLine(Startup.languageInterface[68] , item.Price, item.Overcharge);
-                        Console.WriteLine();
-                    }
-                    break;
-                default:
-                    Console.WriteLine(Startup.languageInterface[50]);
-                    break;
+                switch (input)
+                {
+                    case 1:
+                        int index = FindItem("edit");
+
+                        var selectedProduct = context.Products.Single(id => id.ProductID == index);
+                        Console.WriteLine(Startup.languageInterface[66], Product.foodType[selectedProduct.Type], selectedProduct.Brand);
+                        Console.WriteLine(Startup.languageInterface[67], selectedProduct.InStock, selectedProduct.MaxStock);
+                        Console.WriteLine(Startup.languageInterface[68], selectedProduct.Price, selectedProduct.Overcharge);
+
+                        break;
+                    case 2:
+                        var products = context.Products.ToList();
+                        foreach (var item in products)
+                        {
+                            Console.WriteLine(Startup.languageInterface[66], Product.foodType[item.Type], item.Brand);
+                            Console.WriteLine(Startup.languageInterface[67], item.InStock, item.MaxStock);
+                            Console.WriteLine(Startup.languageInterface[68], item.Price, item.Overcharge);
+                            Console.WriteLine();
+                        }
+                        break;
+                    default:
+                        Console.WriteLine(Startup.languageInterface[50]);
+                        break;
+                }
             }
             InputChecker.CheckIfEnter();
-            Console.WriteLine();
             Console.WriteLine(Startup.languageInterface[0]);
             Console.Clear();
         }

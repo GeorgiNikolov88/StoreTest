@@ -208,6 +208,7 @@ namespace Store
                 default:
                     break;
             }
+            Console.Clear();
             return selectedInterface;
         }
     }

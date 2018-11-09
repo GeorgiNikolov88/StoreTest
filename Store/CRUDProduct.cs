@@ -1,6 +1,8 @@
-﻿using Store.Context;
+﻿using Store;
+using Store.Context;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Store
@@ -11,10 +13,10 @@ namespace Store
         //bool correct;
         //Метод за създаване на нов обект
         //static List<string> languageInterface = Startup.languageInterface;
-        public void CreateNewProduct(List<Product> list, List<string> langageInterface)
+        public void CreateNewProduct(List<string> langageInterface)
         {
             Console.Write(langageInterface[12]);
-            string brand = CheckIfItemExists(Console.ReadLine(), list);
+            string brand = CheckIfItemExists(Console.ReadLine());
             if (brand == string.Empty)
             {
                 return;
@@ -35,12 +37,11 @@ namespace Store
             {
                 context.Products.Add(product);
                 context.SaveChanges();
-            }
-            
+            }            
         }
 
         //Метод за редактиране на даден обект от списъка с продукти в магазина
-        public Product EditProduct(List<Product> list)
+        public void EditProduct()
         {
             int itemToEdit = SellAndRestock.FindItem("edit");
             while (itemToEdit == -1)
@@ -52,31 +53,31 @@ namespace Store
             ConsoleKey check = InputChecker.CheckIfEnter();
             if (check == ConsoleKey.Enter)
             {
-                foreach (var item in list)
+                using (var context = new StoreContext())
                 {
-                    //    if (item.Brand == itemToEdit)
-                    //    {
-                    //        Console.WriteLine(Startup.languageInterface[12]);
-                    //        item.Brand = EditItemProperty(item.Brand);                          
-                    //        Console.WriteLine(Startup.languageInterface[29]);
-                    //        item.Price = EditItemProperty(item.Price);
-                    //        Console.WriteLine(Startup.languageInterface[30]);
-                    //        item.InStock = EditItemProperty(item.InStock);
-                    //        Console.WriteLine(Startup.languageInterface[31]);                        
-                    //        item.Type = InputChecker.CheckTypeInput(item.Type); 
-                    //        Console.WriteLine(Startup.languageInterface[32]);
-                    //        item.MaxStock = EditItemProperty(item.MaxStock);
-                    //        Console.WriteLine(Startup.languageInterface[33]);
-                    //        item.Overcharge = EditItemProperty(item.Overcharge);
-                    //    }
+                    var selectedProduct = context.Products.Single(id => id.ProductID == itemToEdit);
+                    //if (selectedProduct.Brand == itemToEdit)
+                    //{
+                        Console.WriteLine(Startup.languageInterface[12]);
+                        product.Brand = EditItemProperty(selectedProduct.Brand);
+                        Console.WriteLine(Startup.languageInterface[29]);
+                        selectedProduct.Price = EditItemProperty(selectedProduct.Price);
+                        Console.WriteLine(Startup.languageInterface[30]);
+                        selectedProduct.InStock = EditItemProperty(selectedProduct.InStock);
+                        Console.WriteLine(Startup.languageInterface[31]);
+                        selectedProduct.Type = InputChecker.CheckTypeInput(selectedProduct.Type);
+                        Console.WriteLine(Startup.languageInterface[32]);
+                        selectedProduct.MaxStock = EditItemProperty(selectedProduct.MaxStock);
+                        Console.WriteLine(Startup.languageInterface[33]);
+                        selectedProduct.Overcharge = EditItemProperty(selectedProduct.Overcharge);
                     //}
+                    context.SaveChanges();
                 }
             }
             else
             {
                 Console.WriteLine(Startup.languageInterface[34]);
-            }
-            return product;
+            }            
         }
 
         //Метод за изтриване на обект от списъка с продукти
@@ -91,8 +92,11 @@ namespace Store
                 check = InputChecker.CheckIfEnter();
                 if (check == ConsoleKey.Enter)
                 {
-                    //Console.WriteLine(Startup.languageInterface[24], list[index].Brand);
-                  //  list.RemoveAt(index);
+                    using (var context = new StoreContext())
+                    {
+                        var itemToDelete = context.Products.Single(id=>id.ProductID == index);
+                        context.Products.Remove(itemToDelete);
+                    }
                 }
                 else
                 {
@@ -112,44 +116,52 @@ namespace Store
         
 
         //Проверка дали обекта съществува
-        private string CheckIfItemExists(string brand, List<Product> list)
+        private string CheckIfItemExists(string brand)
         {
-            foreach (var item in list)
+            using (var context = new StoreContext())
             {
-                while (brand == item.Brand)
+                var productList = context.Products.ToList();
+                foreach (var item in productList)
                 {
-                    Console.WriteLine(Startup.languageInterface[37]);
-                    Console.WriteLine(Startup.languageInterface[0]);
-                    ConsoleKey answer = InputChecker.CheckIfEnter();
-                    if (answer == ConsoleKey.Enter)
+                    while (brand == item.Brand)
                     {
-                        brand = Console.ReadLine();
-                    }
-                    else
-                    {
-                        return string.Empty;
+                        Console.WriteLine(Startup.languageInterface[37]);
+                        Console.WriteLine(Startup.languageInterface[0]);
+                        ConsoleKey answer = InputChecker.CheckIfEnter();
+                        if (answer == ConsoleKey.Enter)
+                        {
+                            brand = Console.ReadLine();
+                        }
+                        else
+                        {
+                            return string.Empty;
+                        }
                     }
                 }
             }
             return brand;
         }
 
-        public static string CheckIfItemExists(string foodType, List<string> list)
+        public static string CheckIfTypeExists(string foodType)
         {
-            foreach (var item in list)
+            using (var context = new StoreContext())
             {
-                while (foodType.ToLower() == item.ToLower())
+                var types = context.ProductTypes.ToList();
+                foreach (var item in types)
                 {
-                    Console.WriteLine(Startup.languageInterface[72]);
-                    Console.WriteLine(Startup.languageInterface[0]);
-                    ConsoleKey answer = InputChecker.CheckIfEnter();
-                    if (answer == ConsoleKey.Enter)
+                    while (foodType.ToLower() == item.PropertyName.ToLower())
                     {
-                        foodType = Console.ReadLine();
-                    }
-                    else
-                    {
-                        return string.Empty;
+                        Console.WriteLine(Startup.languageInterface[72]);
+                        Console.WriteLine(Startup.languageInterface[0]);
+                        ConsoleKey answer = InputChecker.CheckIfEnter();
+                        if (answer == ConsoleKey.Enter)
+                        {
+                            foodType = Console.ReadLine();
+                        }
+                        else
+                        {
+                            return string.Empty;
+                        }
                     }
                 }
             }

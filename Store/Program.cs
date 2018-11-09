@@ -12,25 +12,17 @@ namespace Store
         public static decimal shopCash = 0m;
         public static List<string> languageInterface =  Interfaces.SelectInterface();
         static void Main(string[] args)
-        {            
-            ExportAndInport creator = new ExportAndInport();
+        {
+            using (var context = new StoreContext())
+            {
+                Product.foodType = context.ProductTypes.Select(item => item.PropertyName).ToList();
+            }
+            //ExportAndInport creator = new ExportAndInport();
             CRUDProduct newProduct = new CRUDProduct();
-            List<Product> list = creator.ImportStoreDataFromFiles();           
+            //List<Product> list = creator.ImportStoreDataFromFiles();           
             SellAndRestock transaction = new SellAndRestock();
             Console.Clear();
             ConsoleKey cont = ConsoleKey.Enter;
-            //using (var context = new StoreContext())
-            //{
-            //    foreach (var item in list)
-            //    {
-            //        context.Products.Add(item);
-            //    }
-            //    foreach (var item in Product.foodType)
-            //    {
-            //        context.ProductTypes.Add(item);
-            //    }
-            //    context.SaveChanges();
-            //}
             while (cont == ConsoleKey.Enter)
             {
                 Console.Clear();
@@ -41,8 +33,7 @@ namespace Store
                 Console.WriteLine(languageInterface[63]);
                 Console.WriteLine(languageInterface[9]);
                 Console.WriteLine(languageInterface[10], 5);
-                Console.Write(languageInterface[1]);
-                
+                Console.Write(languageInterface[1]);                
                 int input = InputChecker.CheckIfInt(5);
                 switch (input)
                 {
@@ -52,7 +43,7 @@ namespace Store
                         while (answer != ConsoleKey.Escape)
                         {
                             Console.Clear();
-                            transaction.Sell(list);
+                            transaction.Sell();
                             Console.WriteLine(languageInterface[0]);
                             answer = InputChecker.CheckIfEnter();
                             Console.Clear();
@@ -73,7 +64,7 @@ namespace Store
                         {
                             case 1:
                                 Console.Clear();
-                                newProduct.CreateNewProduct(list, languageInterface);
+                                newProduct.CreateNewProduct(languageInterface);
                                 //list.Add();
                                 break;
                             case 2:
@@ -83,7 +74,7 @@ namespace Store
                                 break;
                             case 3:
                                 Console.Clear();
-                                newProduct.EditProduct(list);
+                                newProduct.EditProduct();
                                 break;
                             case 4:
                                 Console.Clear();
@@ -103,16 +94,16 @@ namespace Store
                         break;                    
                     case 3:
                         Console.Clear();
-                        transaction.DisplayProducts(list);
+                        transaction.DisplayProducts();
                         break;
                     case 4:
                         Console.Clear();
-                        transaction.Restock(list);
+                        transaction.Restock();
                         
                         break;
                     case 5:
                         Console.Clear();
-                        ExportAndInport.ExportStoreDataToFiles(list);
+                        //ExportAndInport.ExportStoreDataToFiles(list);
                         return;                        
                     default:
                         break;

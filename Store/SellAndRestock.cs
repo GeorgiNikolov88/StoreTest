@@ -16,19 +16,17 @@ namespace Store
             List<int> shoppingCart = ShoppingCart();
             using (var context = new StoreContext())
             {
-                var insertMoney = context.StoreMoney.First();
-                //insertMoney.StoreCashSupply = 0;
+                var insertMoney = context.StoreMoney.First();                
                 foreach (var item in shoppingCart)
                 {
                     var singleItem = context.Products.Single(id => id.ProductID == item);
                     Console.WriteLine(Startup.languageInterface[38], singleItem.Brand, singleItem.InStock);
                     int ammount = InputChecker.CheckIfInt(0, singleItem.InStock);
-                    singleItem.InStock -= ammount;
-                    //var insertMoney = context.StoreMoney.First();
-                    insertMoney.StoreCashSupply += (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount);
-                    //shoppingCardCost += shoppingCardCost + (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount);
+                    singleItem.InStock -= ammount;                    
+                    insertMoney.StoreCashSupply += (singleItem.Price * ammount) 
+                        + ((singleItem.Price * singleItem.Overcharge) * ammount);                    
                     var Newlog = ("Date: ", DateTime.Now,
-                        "Product Type: ", Product.GetListItem(singleItem.Type),
+                        "Product Type: ", singleItem.Type,
                         "Brand: ", singleItem.Brand,
                         "Ammount: ", ammount,
                         "Price: ", (singleItem.Price * ammount) + ((singleItem.Price * singleItem.Overcharge) * ammount)).ToString();
@@ -44,42 +42,42 @@ namespace Store
             }
         }
 
-        internal static int FindItem(string option)
+        internal static int FindItem()
         {
             int itemId;
             using (var context = new StoreContext())
-            {
-                foreach (var item in context.ProductTypes.ToList())
+            {  
+                var typesInStock = context.Products.Select(t => t.Type).Distinct();
+                var types = context.ProductTypes.ToList();
+                List<int> available = new List<int>();
+                available.Clear();
+                Console.WriteLine(Startup.languageInterface[15]);
+                foreach (var item in typesInStock)
                 {
-                    Console.WriteLine("{0}){1}",item.PropertyId,item.PropertyName);
+                    Console.WriteLine("{0}) {1}",item,types[item].PropertyName);
+                    available.Add(item);
                 }
-                Console.Write(Startup.languageInterface[46]);
-                int inpit = InputChecker.CheckIfInt(0, Product.foodType.Count);
-                List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();
-                if (selectedProductsByType.Count > 0)
+                int input = InputChecker.CheckIfInt();
+                while (available.Contains(input) == false)
                 {
-                    Console.WriteLine(Startup.languageInterface[47]);
-                    for (int j = 0; j < selectedProductsByType.Count; j++)
-                    {
-                        Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
-                    }
+                    Console.WriteLine(Startup.languageInterface[2]);
+                    input = InputChecker.CheckIfInt();
                 }
-                int selectItem = InputChecker.CheckIfInt(0, selectedProductsByType.Count);
-                itemId = selectedProductsByType[selectItem].ProductID;
-                var selectedProduct = context.Products.Single(Id => Id.ProductID == itemId);
-                switch (option)
+                var itemsFromSelectedType = context.Products.Where(id=>id.Type == input);
+                available.Clear();
+                Console.Clear();
+                Console.WriteLine(Startup.languageInterface[47]);
+                foreach (var item in itemsFromSelectedType)
                 {
-                    case "edit":
-                        return itemId;
-                    case "sell":
-                        if (selectedProduct.InStock > 0)
-                        {
-                            return itemId;
-                        }
-                        break;
-                    default:
-                        break;
+                    Console.WriteLine("{0}) {1}",item.ProductID,item.Brand);
+                    available.Add(item.ProductID);
                 }
+                itemId = InputChecker.CheckIfInt();
+                while (available.Contains(itemId) == false)
+                {
+                    Console.WriteLine(Startup.languageInterface[2]);
+                    itemId = InputChecker.CheckIfInt();
+                }                
             }
             return itemId;
         }
@@ -92,7 +90,7 @@ namespace Store
             answer = ConsoleKey.Enter;
             while (answer != ConsoleKey.Escape)
             {
-                itemId = FindItem("sell");
+                itemId = FindItem();
                 if (itemId != -1)
                 {
                     shoppingCart.Add(itemId);
@@ -126,7 +124,7 @@ namespace Store
                         {
                             Console.Clear();
                             Console.WriteLine(Startup.languageInterface[53]);
-                            Console.WriteLine(Startup.languageInterface[54], Product.GetListItem(product.Type), product.Brand, product.InStock, product.MaxStock);
+                            Console.WriteLine(Startup.languageInterface[54], product.Type, product.Brand, product.InStock, product.MaxStock);
                             Console.WriteLine(Startup.languageInterface[55]);
                             ConsoleKey answer = Console.ReadKey(true).Key;
                             if (answer == ConsoleKey.Enter)
@@ -173,7 +171,6 @@ namespace Store
                         context.SaveChanges();
                         break;
                     default:
-
                         break;
                 }
                 
@@ -192,7 +189,7 @@ namespace Store
                 switch (input)
                 {
                     case 1:
-                        int index = FindItem("edit");
+                        int index = FindItem();
 
                         var selectedProduct = context.Products.Single(id => id.ProductID == index);
                         Console.WriteLine(Startup.languageInterface[66], Product.foodType[selectedProduct.Type], selectedProduct.Brand);

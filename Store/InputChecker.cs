@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Store.Context;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Store
@@ -43,9 +45,9 @@ namespace Store
             return input;
         }
 
-        public static int CheckIfInt(int minValue,int maxValue)
+        public static int CheckIfInt(int minValue, int maxValue)
         {
-            bool correct = int.TryParse(Console.ReadLine(), out int input);            
+            bool correct = int.TryParse(Console.ReadLine(), out int input);
             while (correct == false || input > maxValue || input < minValue)
             {
                 Console.Write(Startup.languageInterface[2]);
@@ -68,48 +70,80 @@ namespace Store
 
         public static int CheckTypeInput(int currentValue)
         {
-            for (int i = 0; i < Product.foodType.Count; i++)
+            using (var context = new StoreContext())
             {
-                Console.WriteLine("{0}-{1}", i, Product.GetListItem(i));
-            }
-            Console.WriteLine(Startup.languageInterface[20]);
-            Console.WriteLine(Startup.languageInterface[0]);
-            ConsoleKey answer = InputChecker.CheckIfEnter();
-            if (answer == ConsoleKey.Enter)
-            {
-                Product.AddItemType();
-                Console.Clear();
-                foreach (var item in Product.foodType)
+                List<int> ids = new List<int>();
+                foreach (var item in context.ProductTypes.ToList())
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine("{0}){1}", item.PropertyId, item.PropertyName);
+                    ids.Add(item.PropertyId);
                 }
-            }
-            Console.Write(Startup.languageInterface[15]);
-            bool correct = int.TryParse(Console.ReadLine(), out int type);
-            if (string.IsNullOrEmpty(type.ToString()) && !correct)
-            {
-                Console.WriteLine(Startup.languageInterface[34]);
-                return currentValue;
-            }
-            else
-            {
-                while (correct == false || type > Product.foodType.Count || type < 0)
+
+                Console.WriteLine(Startup.languageInterface[20]);
+                Console.WriteLine(Startup.languageInterface[0]);
+                ConsoleKey answer = InputChecker.CheckIfEnter();
+                if (answer == ConsoleKey.Enter)
                 {
-                    if (correct == false)
+                    Product.AddItemType();
+                    Console.Clear();
+                    foreach (var item in Product.foodType)
                     {
-                        Console.WriteLine(Startup.languageInterface[35]);
-                        correct = int.TryParse(Console.ReadLine(), out type);
-                    }
-                    else if (type > Product.foodType.Count || type < 0)
-                    {
-                        Console.WriteLine(Startup.languageInterface[36]);
-                        correct = int.TryParse(Console.ReadLine(), out type);
+                        Console.WriteLine(item);
                     }
                 }
-                return type;
+                Console.Write(Startup.languageInterface[15]);
+                int input = CheckIfInt();
+                while (ids.Contains(input) == false)
+                {
+                    Console.WriteLine("again");
+                    input = InputChecker.CheckIfInt();
+                }
+                return input;
             }
+
+            //for (int i = 0; i < Product.foodType.Count; i++)
+            //{
+            //    Console.WriteLine("{0}-{1}", i, Product.GetListItem(i));
+            //}
+            //Console.WriteLine(Startup.languageInterface[20]);
+            //Console.WriteLine(Startup.languageInterface[0]);
+            //ConsoleKey answer = InputChecker.CheckIfEnter();
+            //if (answer == ConsoleKey.Enter)
+            //{
+            //    Product.AddItemType();
+            //    Console.Clear();
+            //    foreach (var item in Product.foodType)
+            //    {
+            //        Console.WriteLine(item);
+            //    }
+            //}
+            //Console.Write(Startup.languageInterface[15]);
+            //bool correct = int.TryParse(Console.ReadLine(), out int type);
+            //if (string.IsNullOrEmpty(type.ToString()) && !correct)
+            //{
+            //    Console.WriteLine(Startup.languageInterface[34]);
+            //    return currentValue;
+            //}
+            //else
+            //{
+            //    while (correct == false || type > Product.foodType.Count || type < 0)
+            //    {
+            //        if (correct == false)
+            //        {
+            //            Console.WriteLine(Startup.languageInterface[35]);
+            //            correct = int.TryParse(Console.ReadLine(), out type);
+            //        }
+            //        else if (type > Product.foodType.Count || type < 0)
+            //        {
+            //            Console.WriteLine(Startup.languageInterface[36]);
+            //            correct = int.TryParse(Console.ReadLine(), out type);
+            //        }
+            //    }
+            //    return type;
+            //}
 
         }
 
     }
 }
+

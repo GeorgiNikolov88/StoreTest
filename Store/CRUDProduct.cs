@@ -9,10 +9,8 @@ namespace Store
 {
     class CRUDProduct
     {
-        Product product = new Product();
-        //bool correct;
-        //Метод за създаване на нов обект
-        //static List<string> languageInterface = Startup.languageInterface;
+        Product product = new Product();        
+        //Метод за създаване на нов обект        
         public void CreateNewProduct(List<string> langageInterface)
         {
             Console.Write(langageInterface[12]);
@@ -23,10 +21,10 @@ namespace Store
             }
             Console.Write(langageInterface[13]);
             decimal price =InputChecker.CheckIfDecimal();
-            Console.Write(langageInterface[14]);
-            int inStock = InputChecker.CheckIfInt();
             Console.WriteLine(langageInterface[15]);
             int type = InputChecker.CheckTypeInput(0);
+            Console.Write(langageInterface[14]);
+            int inStock = InputChecker.CheckIfInt();
             Console.Write(langageInterface[16]);            
             int maxStock = InputChecker.CheckIfInt();
             Console.Write(langageInterface[17]);
@@ -43,41 +41,39 @@ namespace Store
         //Метод за редактиране на даден обект от списъка с продукти в магазина
         public void EditProduct()
         {
-            int itemToEdit = SellAndRestock.FindItem("edit");
+            int itemToEdit = SellAndRestock.FindItem();
             while (itemToEdit == -1)
             {
                 Console.WriteLine(Startup.languageInterface[36]);
-                itemToEdit = SellAndRestock.FindItem("Edit");                
+                itemToEdit = SellAndRestock.FindItem();
             }
-            Console.WriteLine(Startup.languageInterface[26], itemToEdit);
-            ConsoleKey check = InputChecker.CheckIfEnter();
-            if (check == ConsoleKey.Enter)
+            using (var context = new StoreContext())
             {
-                using (var context = new StoreContext())
+                Console.WriteLine(Startup.languageInterface[26], context.Products.Single(id=>id.ProductID==itemToEdit).Brand);
+                Console.WriteLine(Startup.languageInterface[0]);
+                ConsoleKey check = InputChecker.CheckIfEnter();
+                if (check == ConsoleKey.Enter)
                 {
                     var selectedProduct = context.Products.Single(id => id.ProductID == itemToEdit);
-                    //if (selectedProduct.Brand == itemToEdit)
-                    //{
-                        Console.WriteLine(Startup.languageInterface[12]);
-                        product.Brand = EditItemProperty(selectedProduct.Brand);
-                        Console.WriteLine(Startup.languageInterface[29]);
-                        selectedProduct.Price = EditItemProperty(selectedProduct.Price);
-                        Console.WriteLine(Startup.languageInterface[30]);
-                        selectedProduct.InStock = EditItemProperty(selectedProduct.InStock);
-                        Console.WriteLine(Startup.languageInterface[31]);
-                        selectedProduct.Type = InputChecker.CheckTypeInput(selectedProduct.Type);
-                        Console.WriteLine(Startup.languageInterface[32]);
-                        selectedProduct.MaxStock = EditItemProperty(selectedProduct.MaxStock);
-                        Console.WriteLine(Startup.languageInterface[33]);
-                        selectedProduct.Overcharge = EditItemProperty(selectedProduct.Overcharge);
-                    //}
+                    Console.WriteLine(Startup.languageInterface[12]);
+                    product.Brand = EditItemProperty(selectedProduct.Brand);
+                    Console.WriteLine(Startup.languageInterface[31]);
+                    selectedProduct.Type = InputChecker.CheckTypeInput(selectedProduct.Type);
+                    Console.WriteLine(Startup.languageInterface[29]);
+                    selectedProduct.Price = EditItemProperty(selectedProduct.Price);
+                    Console.WriteLine(Startup.languageInterface[30]);
+                    selectedProduct.InStock = EditItemProperty(selectedProduct.InStock);
+                    Console.WriteLine(Startup.languageInterface[32]);
+                    selectedProduct.MaxStock = EditItemProperty(selectedProduct.MaxStock);
+                    Console.WriteLine(Startup.languageInterface[33]);
+                    selectedProduct.Overcharge = EditItemProperty(selectedProduct.Overcharge);
                     context.SaveChanges();
                 }
+                else
+                {
+                    Console.WriteLine(Startup.languageInterface[34]);
+                }
             }
-            else
-            {
-                Console.WriteLine(Startup.languageInterface[34]);
-            }            
         }
 
         //Метод за изтриване на обект от списъка с продукти
@@ -87,7 +83,7 @@ namespace Store
             ConsoleKey check = InputChecker.CheckIfEnter();
             if (check == ConsoleKey.Enter)
             {                
-                int index = SellAndRestock.FindItem("edit");
+                int index = SellAndRestock.FindItem();                
                 //Console.WriteLine(Startup.languageInterface[23], list[index].Brand);
                 check = InputChecker.CheckIfEnter();
                 if (check == ConsoleKey.Enter)
@@ -95,12 +91,15 @@ namespace Store
                     using (var context = new StoreContext())
                     {
                         var itemToDelete = context.Products.Single(id=>id.ProductID == index);
+                        Console.WriteLine(itemToDelete.Brand);
+                        Console.ReadLine();
                         context.Products.Remove(itemToDelete);
+                        context.SaveChanges();
                     }
                 }
                 else
                 {
-                    //Console.WriteLine(Startup.languageInterface[25], list[index].Brand);
+                    Console.WriteLine(Startup.languageInterface[25]);
                     //return list;
                 }
 

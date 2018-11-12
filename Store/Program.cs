@@ -13,14 +13,19 @@ namespace Store
         public static List<string> languageInterface =  Interfaces.SelectInterface();
         static void Main(string[] args)
         {
-            using (var context = new StoreContext())
-            {
-                Product.foodType = context.ProductTypes.Select(item => item.PropertyName).ToList();
-            }
+            //using (var context = new StoreContext())
+            //{
+            //    Product.foodType = context.ProductTypes.Select(item => item.PropertyName).ToList();
+            //}
+
             //ExportAndInport creator = new ExportAndInport();
             CRUDProduct newProduct = new CRUDProduct();
             //List<Product> list = creator.ImportStoreDataFromFiles();           
             SellAndRestock transaction = new SellAndRestock();
+            //Console.ReadLine();
+            //Console.WriteLine("a");
+            //SellAndRestock.FindItem("edit");
+            //Console.ReadLine();
             Console.Clear();
             ConsoleKey cont = ConsoleKey.Enter;
             while (cont == ConsoleKey.Enter)

@@ -232,10 +232,10 @@ namespace Store
             }
         }
 
-        public static string GetListItem(int index)
-        {
-            return foodType[index];
-        }
+        //public static string GetListItem(int index)
+        //{
+        //    return foodType[index];
+        //}
 
         public Product(string brand, decimal price, int inStock, int type, int maxStock, decimal overcharge)
         {

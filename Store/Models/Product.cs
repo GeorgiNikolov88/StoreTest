@@ -133,7 +133,7 @@ namespace Store
                             typeIds.Add(item.PropertyId);
                         }
                         Console.WriteLine(Startup.languageInterface[69]);
-                        int itemToRemove = InputChecker.CheckIfInt(productTypes.Count);
+                        int itemToRemove = InputChecker.CheckIfInt();
                         while (!typeIds.Contains(itemToRemove))
                         {
                             Console.WriteLine(Startup.languageInterface[36]);
@@ -193,7 +193,7 @@ namespace Store
                             itemToEdit = InputChecker.CheckIfInt(1, context.ProductTypes.Last().PropertyId);
                         }
                         //change the name of the type
-                        Console.WriteLine("item to edit{0}", context.ProductTypes.Single(id=>id.PropertyId == itemToEdit).PropertyName);
+                        //Console.WriteLine("item to edit {0}", context.ProductTypes.Single(id=>id.PropertyId == itemToEdit).PropertyName);
                         Console.WriteLine(Startup.languageInterface[21]);
                         string newName = CRUDProduct.CheckIfTypeExists(Console.ReadLine());
                         if (newName != string.Empty)

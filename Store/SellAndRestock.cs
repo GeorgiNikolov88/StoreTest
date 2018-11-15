@@ -2,15 +2,12 @@
 using Store.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Store
 {
     class SellAndRestock
     {
-        //static decimal shoppingCardCost;
         public void Sell()
         {
             List<int> shoppingCart = ShoppingCart();
@@ -34,8 +31,7 @@ namespace Store
                     {
                         SalesLog = Newlog
                     };
-                    context.StoreLog.Add(log);
-                    //Console.WriteLine(Startup.languageInterface[62], shoppingCardCost);                    
+                    context.StoreLog.Add(log);                                
                 }
                 context.SaveChanges();
                 Console.WriteLine(Startup.languageInterface[43]);
@@ -46,15 +42,14 @@ namespace Store
         {
             int itemId;
             using (var context = new StoreContext())
-            {  
-                var typesInStock = context.Products.Select(t => t.Type).Distinct();
-                var types = context.ProductTypes.ToList();
-                List<int> available = new List<int>();
-                available.Clear();
+            {                  
+                var typesInStock = context.Products.Select(t=>t.Type).ToList().Distinct();                               
+                var types = context.ProductTypes.ToList();               
+                List<int> available = new List<int>();                
                 Console.WriteLine(Startup.languageInterface[15]);
                 foreach (var item in typesInStock)
                 {
-                    Console.WriteLine("{0}) {1}",item,types[item].PropertyName);
+                    Console.WriteLine("{0}) {1}",item, context.ProductTypes.Single(p => p.PropertyId == item).PropertyName);                    
                     available.Add(item);
                 }
                 int input = InputChecker.CheckIfInt();
@@ -114,8 +109,7 @@ namespace Store
             int input = InputChecker.CheckIfInt(0, 3);
             using (var context = new StoreContext())
             {
-                var moneySupply = context.StoreMoney.First();
-                //var moneySupply.StoreCashSupply;
+                var moneySupply = context.StoreMoney.First();                
                 var productList = context.Products.ToList();
                 switch (input)
                 {
@@ -190,18 +184,19 @@ namespace Store
                 {
                     case 1:
                         int index = FindItem();
-
+                        Console.Clear();
                         var selectedProduct = context.Products.Single(id => id.ProductID == index);
-                        Console.WriteLine(Startup.languageInterface[66], Product.foodType[selectedProduct.Type], selectedProduct.Brand);
+                        Console.WriteLine(Startup.languageInterface[66], context.ProductTypes.Find(selectedProduct.Type).PropertyName, selectedProduct.Brand);
                         Console.WriteLine(Startup.languageInterface[67], selectedProduct.InStock, selectedProduct.MaxStock);
                         Console.WriteLine(Startup.languageInterface[68], selectedProduct.Price, selectedProduct.Overcharge);
 
                         break;
                     case 2:
                         var products = context.Products.ToList();
+                        Console.Clear();
                         foreach (var item in products)
                         {
-                            Console.WriteLine(Startup.languageInterface[66], Product.foodType[item.Type], item.Brand);
+                            Console.WriteLine(Startup.languageInterface[66], context.ProductTypes.Find(item.Type).PropertyName, item.Brand);
                             Console.WriteLine(Startup.languageInterface[67], item.InStock, item.MaxStock);
                             Console.WriteLine(Startup.languageInterface[68], item.Price, item.Overcharge);
                             Console.WriteLine();
@@ -212,8 +207,8 @@ namespace Store
                         break;
                 }
             }
-            InputChecker.CheckIfEnter();
             Console.WriteLine(Startup.languageInterface[0]);
+            InputChecker.CheckIfEnter();            
             Console.Clear();
         }
     }

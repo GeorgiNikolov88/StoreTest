@@ -82,25 +82,26 @@ namespace Store
             Console.WriteLine(Startup.languageInterface[22]);
             ConsoleKey check = InputChecker.CheckIfEnter();
             if (check == ConsoleKey.Enter)
-            {                
-                int index = SellAndRestock.FindItem();                
-                //Console.WriteLine(Startup.languageInterface[23], list[index].Brand);
-                check = InputChecker.CheckIfEnter();
-                if (check == ConsoleKey.Enter)
+            {
+                using (var context = new StoreContext())
                 {
-                    using (var context = new StoreContext())
+                    int index = SellAndRestock.FindItem();
+                    Console.WriteLine(Startup.languageInterface[23], context.Products.Single(id=>id.ProductID == index).Brand);
+                    check = InputChecker.CheckIfEnter();
+                    if (check == ConsoleKey.Enter)
                     {
-                        var itemToDelete = context.Products.Single(id=>id.ProductID == index);
+
+                        var itemToDelete = context.Products.Single(id => id.ProductID == index);
                         Console.WriteLine(itemToDelete.Brand);
-                        Console.ReadLine();
                         context.Products.Remove(itemToDelete);
                         context.SaveChanges();
+
                     }
-                }
-                else
-                {
-                    Console.WriteLine(Startup.languageInterface[25]);
-                    //return list;
+                    else
+                    {
+                        Console.WriteLine(Startup.languageInterface[25]);
+                        //return list;
+                    }
                 }
 
             }

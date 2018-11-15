@@ -13,19 +13,8 @@ namespace Store
         public static List<string> languageInterface =  Interfaces.SelectInterface();
         static void Main(string[] args)
         {
-            //using (var context = new StoreContext())
-            //{
-            //    Product.foodType = context.ProductTypes.Select(item => item.PropertyName).ToList();
-            //}
-
-            //ExportAndInport creator = new ExportAndInport();
-            CRUDProduct newProduct = new CRUDProduct();
-            //List<Product> list = creator.ImportStoreDataFromFiles();           
+            CRUDProduct newProduct = new CRUDProduct();           
             SellAndRestock transaction = new SellAndRestock();
-            //Console.ReadLine();
-            //Console.WriteLine("a");
-            //SellAndRestock.FindItem("edit");
-            //Console.ReadLine();
             Console.Clear();
             ConsoleKey cont = ConsoleKey.Enter;
             while (cont == ConsoleKey.Enter)
@@ -117,50 +106,3 @@ namespace Store
         }
     }
 }
-
-
-//            using (var context = new StoreContext())
-//            {
-//                foreach (var item in Product.foodType)
-//                {
-//                    Console.WriteLine(item);
-//                }
-//                Console.Write(Startup.languageInterface[46]);
-//                int inpit = InputChecker.CheckIfInt(0, Product.foodType.Count);
-//List<Product> selectedProductsByType = context.Products.Where(s => s.Type == inpit).ToList();
-//string option = "sell";
-//                if (selectedProductsByType.Count > 0)
-//                {
-//                    Console.WriteLine(Startup.languageInterface[47]);
-//                    for (int j = 0; j<selectedProductsByType.Count; j++)
-//                    {
-//                        Console.WriteLine("{0} - {1}", j, selectedProductsByType[j].Brand);
-//                    }
-//                }
-//                int selectItem = InputChecker.CheckIfInt(0, selectedProductsByType.Count);
-//int itemId = selectedProductsByType[selectItem].ProductID;
-//var selectedProduct = context.Products.Single(Id => Id.ProductID == itemId);
-               
-//                switch (option)
-//                {
-//                    case "edit":
-//                        Console.WriteLine(selectedProduct.Brand);
-//                        break;
-//                    case "sell":
-//                        if (selectedProduct.InStock > 0)
-//                        {
-//                            Console.WriteLine(selectedProduct.InStock);
-//                        }
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-
-
-
-
-
-
-
-//                Console.ReadLine();
